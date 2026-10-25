@@ -5,7 +5,6 @@ A Harry Potter quiz you play in the browser. All the questions come from the sev
 ## Features
 
 - **Four difficulty levels:** Easy, Medium, Hard and Extreme (Hard gives you 30 seconds per question and Extreme gives you 15).
-- **Ultimate mode:** a 20-question run with 5 questions from each level, from Easy up to Extreme, with each level's timer.
 - **Spoiler protection:** pick the last book you've read and you'll only get questions answered in the books up to that point.
 - 10 random questions per round, with the answer order shuffled each time. The quiz remembers which questions you have already seen and gives you new ones first.
 - After each answer you see a short explanation, and at the end you get a list of the questions you missed.

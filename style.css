@@ -72,7 +72,6 @@ legend {
   gap: 12px;
 }
 .diff input { position: absolute; opacity: 0; pointer-events: none; }
-.diff-wide { grid-column: 1 / -1; }
 .diff-card {
   display: flex;
   flex-direction: column;
