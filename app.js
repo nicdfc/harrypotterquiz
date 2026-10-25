@@ -1,10 +1,13 @@
 (() => {
-  const ROUND_SIZE = 10;
+  const TIERS = ["easy", "medium", "hard", "extreme"];
+  const ULTIMATE_PER_TIER = 5;
   const SETTINGS = {
-    easy:    { label: "Easy",    timer: 0 },
-    medium:  { label: "Medium",  timer: 0 },
-    hard:    { label: "Hard",    timer: 30 },
-    extreme: { label: "Extreme", timer: 15 },
+    easy:     { label: "Easy",     timer: 0,  size: 10 },
+    medium:   { label: "Medium",   timer: 0,  size: 10 },
+    hard:     { label: "Hard",     timer: 30, size: 10 },
+    extreme:  { label: "Extreme",  timer: 15, size: 10 },
+    // Mixes every tier, easiest first; each question keeps its own tier's timer.
+    ultimate: { label: "Ultimate", timer: 0,  size: ULTIMATE_PER_TIER * TIERS.length },
   };
   const RANKS = [
     [100, "Outstanding! Dumbledore would award you a hundred points."],
@@ -42,15 +45,15 @@
   }
 
   // Unseen questions first; once they run out, start a fresh cycle.
-  function pickRound(difficulty, pool) {
+  function pickRound(difficulty, pool, size) {
     const all = loadSeen();
     let seen = new Set(all[difficulty] || []);
     let unseen = pool.filter((q) => !seen.has(q.q));
-    let picked = shuffle(unseen).slice(0, ROUND_SIZE);
-    if (picked.length < ROUND_SIZE) {
+    let picked = shuffle(unseen).slice(0, size);
+    if (picked.length < size) {
       seen = new Set();
       const used = new Set(picked.map((q) => q.q));
-      const refill = shuffle(pool.filter((q) => !used.has(q.q))).slice(0, ROUND_SIZE - picked.length);
+      const refill = shuffle(pool.filter((q) => !used.has(q.q))).slice(0, size - picked.length);
       picked = picked.concat(refill);
     }
     picked.forEach((q) => seen.add(q.q));
@@ -91,7 +94,7 @@
     const best = loadBest();
     document.querySelectorAll("[data-best]").forEach((el) => {
       const b = best[el.dataset.best];
-      el.textContent = b != null ? `Best: ${b}/${ROUND_SIZE}` : "";
+      el.textContent = b != null ? `Best: ${b}/${SETTINGS[el.dataset.best].size}` : "";
     });
     $("startError").textContent = "";
     show("start");
@@ -103,8 +106,10 @@
     savePref("hpq-difficulty", difficulty);
     savePref("hpq-readUpTo", String(readUpTo));
 
-    const pool = QUESTIONS[difficulty].filter((q) => q.book <= readUpTo);
-    if (pool.length < 3) {
+    const poolFor = (tier) => QUESTIONS[tier].filter((q) => q.book <= readUpTo);
+    const tiers = difficulty === "ultimate" ? TIERS : [difficulty];
+    const perTier = difficulty === "ultimate" ? ULTIMATE_PER_TIER : SETTINGS[difficulty].size;
+    if (tiers.some((tier) => poolFor(tier).length < 3)) {
       $("startError").textContent =
         "There aren't enough questions for that combination yet. Try another difficulty or include more books.";
       return;
@@ -112,10 +117,12 @@
     state = {
       difficulty,
       readUpTo,
-      questions: pickRound(difficulty, pool).map((q) => ({
-        ...q,
-        options: shuffle([q.a, ...q.w]),
-      })),
+      questions: tiers.flatMap((tier) =>
+        pickRound(tier, poolFor(tier), perTier).map((q) => ({
+          ...q,
+          tier,
+          options: shuffle([q.a, ...q.w]),
+        }))),
       index: 0,
       score: 0,
       missed: [],
@@ -134,7 +141,7 @@
     $("progressText").textContent = `Question ${state.index + 1} of ${total}`;
     $("scoreText").textContent = `Score: ${state.score}`;
     $("progressBar").style.width = `${(state.index / total) * 100}%`;
-    $("bookTag").textContent = `${SETTINGS[state.difficulty].label} · ${BOOKS[q.book - 1]}`;
+    $("bookTag").textContent = `${SETTINGS[q.tier].label} · ${BOOKS[q.book - 1]}`;
     $("questionText").textContent = q.q;
     $("feedback").innerHTML = "";
     $("nextBtn").hidden = true;
@@ -156,7 +163,7 @@
 
   function startTimer() {
     clearInterval(timerId);
-    const seconds = SETTINGS[state.difficulty].timer;
+    const seconds = SETTINGS[state.questions[state.index].tier].timer;
     const el = $("timer");
     if (!seconds) { el.hidden = true; return; }
     let left = seconds;
@@ -228,12 +235,13 @@
     // Only full-length rounds count towards the best score.
     const best = loadBest();
     const prev = best[state.difficulty];
-    if (total === ROUND_SIZE && (prev == null || state.score > prev)) {
+    const fullSize = SETTINGS[state.difficulty].size;
+    if (total === fullSize && (prev == null || state.score > prev)) {
       best[state.difficulty] = state.score;
       saveBest(best);
       $("resultBest").textContent = prev == null ? "That's your first recorded score." : "New personal best!";
     } else {
-      $("resultBest").textContent = prev != null ? `Your best: ${prev}/${ROUND_SIZE}` : "";
+      $("resultBest").textContent = prev != null ? `Your best: ${prev}/${fullSize}` : "";
     }
 
     const list = $("reviewList");
