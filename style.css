@@ -221,6 +221,7 @@ footer {
   opacity: .6;
   padding: 16px;
 }
+footer .version { margin-top: 4px; letter-spacing: .05em; }
 
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }

@@ -18,6 +18,8 @@ A Harry Potter quiz you play in the browser. All the questions come from the sev
 3. Choose your branch (e.g. `main`) and the `/ (root)` folder, then click **Save**.
 4. After a minute or so the site will be live at `https://<your-username>.github.io/harrypotterquiz/`.
 
+The version number shown at the bottom of the page is in the `<footer>` of `index.html`. Change it there when you release an update.
+
 There's no build step: the site is just `index.html`, `style.css`, `app.js` and `questions.js`.
 
 To try it on your own computer, open `index.html` in a browser.
