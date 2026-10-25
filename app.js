@@ -3,8 +3,8 @@
   const SETTINGS = {
     easy:    { label: "Easy",    timer: 0 },
     medium:  { label: "Medium",  timer: 0 },
-    hard:    { label: "Hard",    timer: 0 },
-    extreme: { label: "Extreme", timer: 20 },
+    hard:    { label: "Hard",    timer: 30 },
+    extreme: { label: "Extreme", timer: 15 },
   };
   const RANKS = [
     [100, "Outstanding! Dumbledore would award you a hundred points."],
@@ -32,6 +32,31 @@
   }
   function savePref(key, value) {
     try { localStorage.setItem(key, value); } catch { /* ignore */ }
+  }
+  // Questions already asked, per difficulty, so new rounds favour unseen ones.
+  function loadSeen() {
+    try { return JSON.parse(localStorage.getItem("hpq-seen")) || {}; } catch { return {}; }
+  }
+  function saveSeen(seen) {
+    try { localStorage.setItem("hpq-seen", JSON.stringify(seen)); } catch { /* ignore */ }
+  }
+
+  // Unseen questions first; once they run out, start a fresh cycle.
+  function pickRound(difficulty, pool) {
+    const all = loadSeen();
+    let seen = new Set(all[difficulty] || []);
+    let unseen = pool.filter((q) => !seen.has(q.q));
+    let picked = shuffle(unseen).slice(0, ROUND_SIZE);
+    if (picked.length < ROUND_SIZE) {
+      seen = new Set();
+      const used = new Set(picked.map((q) => q.q));
+      const refill = shuffle(pool.filter((q) => !used.has(q.q))).slice(0, ROUND_SIZE - picked.length);
+      picked = picked.concat(refill);
+    }
+    picked.forEach((q) => seen.add(q.q));
+    all[difficulty] = [...seen];
+    saveSeen(all);
+    return picked;
   }
 
   function shuffle(arr) {
@@ -87,7 +112,7 @@
     state = {
       difficulty,
       readUpTo,
-      questions: shuffle(pool).slice(0, ROUND_SIZE).map((q) => ({
+      questions: pickRound(difficulty, pool).map((q) => ({
         ...q,
         options: shuffle([q.a, ...q.w]),
       })),
