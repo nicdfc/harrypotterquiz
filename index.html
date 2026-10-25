@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Harry Potter Book Quiz</title>
+  <meta name="description" content="Test your knowledge of the Harry Potter books across four difficulty levels.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Crimson+Text:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main id="app">
+    <!-- Start screen -->
+    <section id="start" class="screen">
+      <header class="title">
+        <h1>⚡ The Harry Potter Book Quiz ⚡</h1>
+        <p class="subtitle">Every question comes from the seven books, not the films.</p>
+      </header>
+
+      <fieldset class="panel">
+        <legend>Choose your difficulty</legend>
+        <div class="difficulties" role="radiogroup">
+          <label class="diff"><input type="radio" name="difficulty" value="easy" checked>
+            <span class="diff-card"><strong>Easy</strong><small>First-year. The big moments everyone remembers.</small><em class="best" data-best="easy"></em></span></label>
+          <label class="diff"><input type="radio" name="difficulty" value="medium">
+            <span class="diff-card"><strong>Medium</strong><small>O.W.L. level. You'll need to have read them all.</small><em class="best" data-best="medium"></em></span></label>
+          <label class="diff"><input type="radio" name="difficulty" value="hard">
+            <span class="diff-card"><strong>Hard</strong><small>N.E.W.T. level. Details from the margins.</small><em class="best" data-best="hard"></em></span></label>
+          <label class="diff"><input type="radio" name="difficulty" value="extreme">
+            <span class="diff-card"><strong>Extreme</strong><small>Hermione level. Obscure trivia with 20 seconds on the clock.</small><em class="best" data-best="extreme"></em></span></label>
+        </div>
+      </fieldset>
+
+      <fieldset class="panel">
+        <legend>Spoiler protection</legend>
+        <label for="readUpTo">I've read up to:</label>
+        <select id="readUpTo"></select>
+        <p class="hint">You'll only get questions whose answers appear in the books you've read.</p>
+      </fieldset>
+
+      <button id="startBtn" class="btn primary">Begin the quiz</button>
+      <p id="startError" class="error" role="alert"></p>
+    </section>
+
+    <!-- Question screen -->
+    <section id="quiz" class="screen" hidden>
+      <div class="quiz-top">
+        <span id="progressText"></span>
+        <span id="timer" class="timer" hidden></span>
+        <span id="scoreText"></span>
+      </div>
+      <div class="progress"><div id="progressBar"></div></div>
+
+      <div class="panel question-panel">
+        <p id="bookTag" class="book-tag"></p>
+        <h2 id="questionText"></h2>
+        <div id="answers" class="answers"></div>
+        <div id="feedback" class="feedback" aria-live="polite"></div>
+        <button id="nextBtn" class="btn primary" hidden>Next question</button>
+      </div>
+      <button id="quitBtn" class="btn link">Quit to menu</button>
+    </section>
+
+    <!-- Results screen -->
+    <section id="results" class="screen" hidden>
+      <div class="panel results-panel">
+        <h2 id="resultTitle"></h2>
+        <p id="resultScore" class="big-score"></p>
+        <p id="resultRank" class="rank"></p>
+        <p id="resultBest" class="hint"></p>
+        <div class="row">
+          <button id="againBtn" class="btn primary">Play again</button>
+          <button id="menuBtn" class="btn">Change difficulty</button>
+        </div>
+      </div>
+      <div id="review" class="panel review" hidden>
+        <h3>Questions you missed</h3>
+        <ol id="reviewList"></ol>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    An unofficial fan-made quiz. Not affiliated with J.K. Rowling, Bloomsbury, Scholastic or Warner Bros.
+  </footer>
+
+  <script src="questions.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
